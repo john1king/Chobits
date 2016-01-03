@@ -1,0 +1,49 @@
+---
+- name: Install build depends
+  apt: name={{ item }}
+  with_items:
+    - autoconf
+    - bison
+    - build-essential
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm3
+    - libgdbm-dev
+
+- name: Clone rbenv repository
+  git: repo={{ rbenv_repo }} dest={{ rbenv_path }} version={{ rbenv_version }} accept_hostkey=yes
+  sudo_user: '{{ user_name }}'
+
+- name: Create rbenv.sh
+  template: src=rbenv.sh.j2 dest={{ profile_d_path }}/rbenv.sh owner={{ user_name }} group={{ group_name }}
+
+- name: Create plugins directory
+  file: path={{ rbenv_plugins_path }} state=directory owner={{ user_name }} group={{ group_name }}
+
+- name: Install plugins
+  git: repo={{ item.git }} dest={{ rbenv_plugins_path }}/{{ item.name }} version={{ item.version }} accept_hostkey=yes
+  sudo_user: '{{ user_name }}'
+  with_items: rbenv_plugins
+
+- name: Check if ruby installed
+  shell: '. /etc/profile && rbenv versions | grep -q {{ ruby_version }}'
+  register: ruby_installed
+  ignore_errors: yes
+  sudo_user: '{{ user_name }}'
+
+- name: Install ruby
+  shell: '. /etc/profile && rbenv install {{ ruby_version }}'
+  sudo_user: '{{ user_name }}'
+  when: ruby_installed|failed
+
+- name: Set global ruby version
+  shell: '. /etc/profile && rbenv global {{ ruby_version }}'
+  sudo_user: '{{ user_name }}'
+
+- name: Rehash rbenv
+  shell: '. /etc/profile && rbenv rehash'
+  sudo_user: '{{ user_name }}'
