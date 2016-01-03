@@ -1,9 +1,4 @@
 - hosts: vps
   remote_user: root
-  vars:
-    ruby_version: 2.3.0
-    user_name: root
-    group_name: root
-    profile_d_path: /etc/profile.d
   roles:
-    - rbenv
+    - chruby

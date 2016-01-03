@@ -1,3 +1,8 @@
+ruby_version: 2.3.0
+user_name: root
+group_name: root
+profile_d_path: /etc/profile.d
+
 rbenv_repo: https://github.com/sstephenson/rbenv.git
 rbenv_version: master
 rbenv_path: '/usr/local/opt/rbenv'
