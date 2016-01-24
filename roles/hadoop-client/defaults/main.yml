@@ -1,1 +1,6 @@
 hadoop_version: '2.6.0'
+hadoop_conf_files:
+  - core-site.xml
+  - hdfs-site.xml
+  - mapred-site.xml
+  - yarn-site.xml

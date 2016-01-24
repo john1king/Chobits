@@ -10,6 +10,9 @@
 - name: Install Java Runtime Environment
   apt: pkg=openjdk-8-jdk state=present default_release=jessie-backports
 
+- name: Set java home
+  shell: echo "export JAVA_HOME=$(dirname $(readlink -f /usr/bin/java | sed 's:bin/java::'))" > /etc/profile.d/java_home.sh
+
 - name: Check hadoop install
   stat: path="/opt/hadoop-{{ hadoop_version }}"
   register: hadoop
@@ -25,3 +28,14 @@
   command: tar xzf "/tmp/hadoop-{{ hadoop_version }}.tar.gz" -C "/opt/"
   when: not hadoop.stat.exists and uploaded_hadoop
   notify: Remove doc file
+
+- name: Configure hadoop
+  copy: src={{ item }}
+        dest=/opt/hadoop-{{ hadoop_version }}/etc/hadoop/{{ item }}
+  with_items: hadoop_conf_files
+
+- name: Make bin link
+  file:
+    src: "/opt/hadoop-{{ hadoop_version }}/bin/hadoop"
+    dest: /usr/local/bin/hadoop
+    state: link
