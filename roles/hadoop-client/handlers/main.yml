@@ -1,0 +1,5 @@
+- name: Remove tmp file
+  command: rm -rf /tmp/hadoop-{{ hadoop_version }}.tar.gz
+
+- name: Remove doc file
+  command: rm -rf /opt/hadoop-{{ hadoop_version }}/share/doc
