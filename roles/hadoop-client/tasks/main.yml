@@ -1,0 +1,7 @@
+- name: Add backports source list
+  copy: src=backports.list
+        dest=/etc/apt/sources.list.d/backports.list
+  notify: Update apt-get cache
+
+- name: Install Java Runtime Environment
+  apt: pkg=openjdk-8-jdk state=present default_release=jessie-backports
