@@ -5,4 +5,4 @@
   shell: wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 
 - name: Install postgresql client
-  apt: update_cache=yes pkg=postgresql-client-{{ postgresql_client_version }} state=present
+  apt: update_cache=yes cache_valid_time=3600 pkg=postgresql-client-{{ postgresql_client_version }} state=present

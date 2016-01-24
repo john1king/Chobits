@@ -11,7 +11,7 @@
   apt: pkg=openjdk-8-jdk state=present default_release=jessie-backports
 
 - name: Set java home
-  shell: echo "export JAVA_HOME=$(dirname $(readlink -f /usr/bin/java | sed 's:bin/java::'))" > /etc/profile.d/java_home.sh
+  shell: echo "export JAVA_HOME=$(dirname $(readlink -f /usr/bin/java | sed 's:bin/java::'))" > /etc/profile.d/java.sh
 
 - name: Check hadoop install
   stat: path="/opt/hadoop-{{ hadoop_version }}"
@@ -34,8 +34,5 @@
         dest=/opt/hadoop-{{ hadoop_version }}/etc/hadoop/{{ item }}
   with_items: hadoop_conf_files
 
-- name: Make bin link
-  file:
-    src: "/opt/hadoop-{{ hadoop_version }}/bin/hadoop"
-    dest: /usr/local/bin/hadoop
-    state: link
+- name: Hadoop env
+  template: src=hadoop.sh.j2 dest=/etc/profile.d/hadoop.sh
