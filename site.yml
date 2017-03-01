@@ -1,5 +1,0 @@
-- hosts: vps
-  remote_user: root
-  roles:
-    - chruby
-    - ruby_install
