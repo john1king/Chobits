@@ -1,6 +1,11 @@
 ---
+# https://github.com/rbenv/ruby-build/wiki#suggested-build-environment
 - name: Install build depends
-  apt: name={{ item }}
+  apt:
+    name: '{{ item }}'
+    update_cache: yes
+    cache_valid_time: 3600
+    state: installed
   with_items:
     - autoconf
     - bison
@@ -16,34 +21,34 @@
 
 - name: Clone rbenv repository
   git: repo={{ rbenv_repo }} dest={{ rbenv_path }} version={{ rbenv_version }} accept_hostkey=yes
-  sudo_user: '{{ user_name }}'
+  become_user: '{{ rbenv_user }}'
 
 - name: Create rbenv.sh
-  template: src=rbenv.sh.j2 dest={{ profile_d_path }}/rbenv.sh owner={{ user_name }} group={{ group_name }}
+  template: src=rbenv.sh.j2 dest={{ rbenv_profile_d_path }}/rbenv.sh owner={{ rbenv_user }} group={{ rbenv_group }}
 
 - name: Create plugins directory
-  file: path={{ rbenv_plugins_path }} state=directory owner={{ user_name }} group={{ group_name }}
+  file: path={{ rbenv_plugins_path }} state=directory owner={{ rbenv_user }} group={{ rbenv_group }}
 
 - name: Install plugins
   git: repo={{ item.git }} dest={{ rbenv_plugins_path }}/{{ item.name }} version={{ item.version }} accept_hostkey=yes
-  sudo_user: '{{ user_name }}'
+  become_user: '{{ rbenv_user }}'
   with_items: rbenv_plugins
 
 - name: Check if ruby installed
-  shell: '. /etc/profile && rbenv versions | grep -q {{ ruby_version }}'
+  shell: '. /etc/profile && rbenv versions | grep -q {{ rbenv_ruby_version }}'
   register: ruby_installed
   ignore_errors: yes
-  sudo_user: '{{ user_name }}'
+  become_user: '{{ rbenv_user }}'
 
 - name: Install ruby
-  shell: '. /etc/profile && rbenv install {{ ruby_version }}'
-  sudo_user: '{{ user_name }}'
+  shell: '. /etc/profile && rbenv install {{ rbenv_ruby_version }}'
+  become_user: '{{ rbenv_user }}'
   when: ruby_installed|failed
 
 - name: Set global ruby version
-  shell: '. /etc/profile && rbenv global {{ ruby_version }}'
-  sudo_user: '{{ user_name }}'
+  shell: '. /etc/profile && rbenv global {{ rbenv_ruby_version }}'
+  become_user: '{{ rbenv_user }}'
 
 - name: Rehash rbenv
   shell: '. /etc/profile && rbenv rehash'
-  sudo_user: '{{ user_name }}'
+  become_user: '{{ rbenv_user }}'
