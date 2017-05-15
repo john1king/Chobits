@@ -7,12 +7,25 @@
     name: rvm
     become: yes
   tags: ['mars-ruby']
+  vars:
+    rvm1_rubies: ['ruby-{{ deploy_ruby_version }}']
+    rvm1_install_path: /usr/local/rvm
+    rvm1_user: root
 
 - name: Install nginx
   include_role:
     name: nginx
     become: yes
   tags: ['mars-nginx']
+  vars:
+    nginx_sites:
+      default:
+        - "{{ deploy_nginx_default }}"
+      https:
+        - "{{ deploy_nginx_https }}"
+    nginx_configs:
+      upstream:
+        - "{{ deploy_nginx_upstream }}"
 
 - name: Install python3-psycopg2 for postgresql
   include: apt.yml name=python3-psycopg2
@@ -22,6 +35,20 @@
   include_role:
     name: postgresql
     become: yes
+  vars:
+    postgresql_version: 9.6
+    postgresql_encoding: 'UTF-8'
+    postgresql_databases:
+      - name: "{{ database_name }}"
+        owner: "{{ database_user }}"
+    postgresql_users:
+      - name: "{{ database_user }}"
+        pass: "{{ database_password }}"
+        encrypted: no
+    postgresql_user_privileges:
+      - name: "{{ database_user }}"
+        db: "{{ database_name }}"
+        priv: "ALL"
   tags: ['mars-db']
 
 - name: Install gem dependencies
