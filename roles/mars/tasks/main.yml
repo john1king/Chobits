@@ -1,46 +1,17 @@
-- name: "Create deploy user"
-  user:
-    name: "{{ deploy_user }}"
-    group: "{{ deploy_group }}"
-    shell: /bin/bash
-    generate_ssh_key: yes
-    ssh_key_bits: 2048
-    ssh_key_file: .ssh/id_rsa
-
-- name: Mkdir deploy directory
-  file:
-    path: '{{ deploy_to }}/shared/config'
-    state: directory
-    owner: '{{ deploy_user }}'
-    group: '{{ deploy_group }}'
-    mode: 0755
-
-- name: Upload deploy user ssh key for capistrano
-  copy:
-    src: ~/.ssh/id_rsa.pub
-    dest: /home/{{ deploy_user }}/.ssh/authorized_keys
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_group }}"
-    mode: 0600
-
-- name: Upload rails config files
-  tags: ['mars-config']
-  template:
-    src: "{{ item  }}"
-    dest: "{{ deploy_to }}/shared/config/{{ item | basename | splitext | first }}"
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_group }}"
-  with_fileglob:
-    - templates/*.j2
+- name: Deploy prepare
+  include: prepare.yml
+  tags: ['mars-prepare']
 
 - name: Install RVM
   include_role:
     name: rvm
-  tags: ['mars-rvm']
+    become: yes
+  tags: ['mars-ruby']
 
 - name: Install nginx
   include_role:
     name: nginx
+    become: yes
   tags: ['mars-nginx']
 
 - name: Install python3-psycopg2 for postgresql
@@ -50,6 +21,7 @@
 - name: Install postgresql
   include_role:
     name: postgresql
+    become: yes
   tags: ['mars-db']
 
 - name: Install gem dependencies
