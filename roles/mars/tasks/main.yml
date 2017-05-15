@@ -12,20 +12,35 @@
     rvm1_install_path: /usr/local/rvm
     rvm1_user: root
 
-- name: Install nginx
+- name: Install nginx use https
   include_role:
     name: nginx
-    become: yes
   tags: ['mars-nginx']
+  when: deploy_use_https
   vars:
+    become: yes
     nginx_sites:
       default:
-        - "{{ deploy_nginx_default }}"
+        - "{{ deploy_nginx_default_conf }}"
       https:
-        - "{{ deploy_nginx_https }}"
+        - "{{ deploy_nginx_https_conf }}"
     nginx_configs:
       upstream:
-        - "{{ deploy_nginx_upstream }}"
+        - "{{ deploy_nginx_upstream_conf }}"
+
+- name: Install nginx use http
+  include_role:
+    name: nginx
+  tags: ['mars-nginx']
+  when: not deploy_use_https
+  vars:
+    become: yes
+    nginx_sites:
+      default:
+        - "{{ deploy_nginx_http_conf }}"
+    nginx_configs:
+      upstream:
+        - "{{ deploy_nginx_upstream_conf }}"
 
 - name: Install python3-psycopg2 for postgresql
   include: apt.yml name=python3-psycopg2
