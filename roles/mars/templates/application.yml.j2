@@ -1,0 +1,19 @@
+
+production:
+  app_name: MARS
+  server_name: "{{ deploy_domain }}"
+  omniauth:
+{% for oauth in omniauth %}
+    {{ oauth.name }}:
+      app_id: {{ oauth.app_id }}
+      app_secret: {{ oauth.app_secret }}
+{% endfor %}
+  mail:
+    address: 'smtp.qq.com'
+    port: 465
+    domain: 'john1king.com'
+    user_name: 'noreply@john1king.com'
+    password: '{{ mail_password }}'
+    authentication: 'login'
+    enable_starttls_auto: yes
+    tls: yes

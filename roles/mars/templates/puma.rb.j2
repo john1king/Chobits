@@ -1,0 +1,20 @@
+
+
+application_path = "{{ deploy_to }}"
+
+environment 'production'
+threads 4,16
+workers 2
+
+directory "#{application_path}/current"
+rackup "#{application_path}/current/config.ru"
+
+pidfile "#{application_path}/shared/tmp/pids/puma.pid"
+state_path "#{application_path}/shared/tmp/pids/puma.state"
+stdout_redirect "#{application_path}/shared/log/puma.error.log", "#{application_path}/shared/puma.access.log", true
+bind "unix://#{application_path}/shared/tmp/sockets/puma.sock"
+
+state_path "#{application_path}/shared/tmp/sockets/puma.state"
+activate_control_app "unix://#{application_path}/shared/tmp/sockets/pumactl.sock"
+
+preload_app!
