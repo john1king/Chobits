@@ -31,4 +31,4 @@
     owner: "{{ deploy_user }}"
     group: "{{ deploy_group }}"
   with_fileglob:
-    - templates/*.j2
+    - templates/config/*.j2
