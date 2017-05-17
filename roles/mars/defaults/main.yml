@@ -3,6 +3,7 @@
 
 deploy_app: mars
 deploy_to: /var/www/{{ deploy_app }}
+deploy_create_user: yes
 deploy_user: deploy
 deploy_group: www-data
 deploy_domain: mars.john1king.com

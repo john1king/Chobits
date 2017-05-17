@@ -6,6 +6,7 @@
     generate_ssh_key: yes
     ssh_key_bits: 2048
     ssh_key_file: .ssh/id_rsa
+  when: deploy_create_user
 
 - name: Mkdir deploy directory
   file:
@@ -17,11 +18,12 @@
 
 - name: Upload deploy user ssh key for capistrano
   copy:
-    src: ~/.ssh/id_rsa.pub
+    src: "{{ deploy_ssh_key_path | default('~/.ssh/id_rsa.pub') }}"
     dest: /home/{{ deploy_user }}/.ssh/authorized_keys
     owner: "{{ deploy_user }}"
     group: "{{ deploy_group }}"
     mode: 0600
+  when: deploy_ssh_key_path is defined or deploy_ssh_key
 
 - name: Upload rails config files
   tags: ['mars-config']
