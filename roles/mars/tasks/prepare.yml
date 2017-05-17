@@ -16,13 +16,26 @@
     group: '{{ deploy_group }}'
     mode: 0755
 
-- name: Upload deploy user ssh key for capistrano
-  copy:
-    src: "{{ deploy_ssh_key_path | default('~/.ssh/id_rsa.pub') }}"
-    dest: /home/{{ deploy_user }}/.ssh/authorized_keys
+- name: Check authorized_keys file exists
+  stat:
+    path: /etc/file.txt
+  register: deploy_authorized_keys_file
+
+- name: Create authorized_keys file
+  file:
+    path: /home/{{ deploy_user }}/.ssh/authorized_keys
     owner: "{{ deploy_user }}"
     group: "{{ deploy_group }}"
     mode: 0600
+    state: touch
+  when: (deploy_ssh_key_path is defined or deploy_ssh_key) and not deploy_authorized_keys_file.stat.exists
+
+- name: Upload deploy user ssh key for capistrano
+  lineinfile:
+    line: "{{ lookup('file', deploy_ssh_key_path | default('~/.ssh/id_rsa.pub') ) }}"
+    path: /home/{{ deploy_user }}/.ssh/authorized_keys
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
   when: deploy_ssh_key_path is defined or deploy_ssh_key
 
 - name: Upload rails config files
