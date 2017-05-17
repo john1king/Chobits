@@ -32,3 +32,24 @@
     group: "{{ deploy_group }}"
   with_fileglob:
     - templates/config/*.j2
+
+- name: Ensure shared views path exist
+  tags: ['mars-config']
+  file:
+    path: "{{ deploy_to }}/shared/app/views/shared/"
+    state: directory
+    owner: '{{ deploy_user }}'
+    group: '{{ deploy_group }}'
+    mode: 0755
+  when: deploy_custom_views is defined
+
+- name: Upload custom views
+  tags: ['mars-config']
+  template:
+    src: "{{ item  }}"
+    dest: "{{ deploy_to }}/shared/app/views/shared/{{ item | basename | splitext | first }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
+  with_fileglob:
+    - "{{ deploy_custom_views }}"
+  when: deploy_custom_views is defined
